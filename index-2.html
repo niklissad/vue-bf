@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>vue-bf</title>
+    <style>
+        body {
+            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        }
+        label {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<ad-form>
+    <form action="">
+        <ad-input></ad-input>
+        <ad-input></ad-input>
+        <ad-select></ad-select>
+        <button v-on:click="serializeForm($event)">check</button>
+    </form>
+</ad-form>
+
+
+<script src="js/vue.js"></script>
+<script src="js/vue-multiselect.min.js"></script>
+
+<script>
+    var options = [
+        {
+            value: 1,
+            title: 1
+        },
+        {
+            value: 2,
+            title: 2
+        },
+        {
+            value: 3,
+            title: 3
+        }
+    ]
+</script>
+
+<script>
+
+    Vue.config.devtools = true;
+
+    var AdInput = Vue.extend({
+        template: '<label>\
+                   Label of {{input}}<br>\
+                   <input type="text" v-model="input" v-on:keyup="notify">\
+                   </label>',
+        data: function () {
+            return {
+                input: this.input
+            }
+        },
+        methods: {
+            notify: function () {
+                if (this.input.trim()) {
+                    this.$dispatch('form-update', this.input);
+                }
+            }
+        }
+    });
+
+    Vue.component('ad-input', AdInput);
+
+    var AdSelect = Vue.extend({
+        template: '<label>\
+                        Selected: {{select}}<br>\
+                        <select v-model="select" :data="options" v-on:change="notify">\
+                            <option value="0" disabled selected>none</option>\
+                            <option value="1">1</option>\
+                            <option value="2">2</option>\
+                            <option value="3">3</option>\
+                            <option value="4">4</option>\
+                            <option value="5">5</option>\
+                        </select>\
+                    </label>',
+        props: ['data'],
+        data: function () {
+            return {
+                select: this.select,
+                options: this.options
+            }
+        },
+        methods: {
+            notify: function () {
+                console.log(this.options);
+                this.$dispatch('form-update', this.select);
+            }
+        }
+    });
+
+    Vue.component('ad-select', AdSelect);
+
+    var AdForm = Vue.extend({
+        el: function() {
+            return 'ad-form';
+        },
+        data: function () {
+            return {
+                form: []
+            }
+
+        },
+        events: {
+            'form-update': function (data) {
+                // `this` in event callbacks are automatically bound
+                // to the instance that registered it
+                console.log(data);
+                // this.form.push
+            }
+        }
+    });
+
+    Vue.component('ad-form', AdForm);
+
+    var app = new Vue({
+        el: 'body',
+        components: { 'multiselect': VueMultiselect },
+        data: function () {
+            return {
+                selected: null,
+                options: ['list', 'of', 'options']
+            }
+        },
+        methods: {
+            updateSelected: function(newSelected) {
+                this.selected = newSelected
+            },
+            serializeForm: function(event) {
+                event.preventDefault();
+                console.log(this.$children);
+                console.log(AdForm);
+            }
+        }
+    });
+
+
+</script>
+
+<script>
+
+//    new Vue({
+//        el: '#new-filters',
+//        data: {
+//            message: 'Hello Vue.js!'
+//        }
+//    });
+
+//    var select = Vue.extend( {
+//        components: Multiselect,
+//        data: function () {
+//            return {
+//                selected: null,
+//                options: ['list', 'of', 'options']
+//            }
+//        },
+//        methods: {
+//            updateSelected: function(newSelected) {
+//                this.selected = newSelected
+//            }
+//        }
+//    });
+
+</script>
+
+<multiselect :selected="selected" :options="options" @update="updateSelected"></multiselect>
+
+</body>
+</html>
